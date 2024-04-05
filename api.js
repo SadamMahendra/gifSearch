@@ -1,1 +1,1 @@
-let apiKey = "wCotIbPrdwXT9VT847apjeXFQlKStgj1";
+let apiKey = "?api_key=wCotIbPrdwXT9VT847apjeXFQlKStgj1";

@@ -14,7 +14,7 @@ let generateGif = () => {
   let gifCount = 10;
 
   // api url
-  let finalUrl = `https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${q}&limit=${gifCount}&offset=0&rating=g&lang=en`;
+  let finalUrl = `https://api.giphy.com/v1/gifs/search${apiKey}&q=${q}&limit=${gifCount}&offset=0&rating=g&lang=en`;
   wrapperEl.innerHTML = "";
 
   // function untuk memanggil api
@@ -22,59 +22,63 @@ let generateGif = () => {
 };
 
 async function loadGif(finalUrl, gifCount) {
-  const api = await fetch(finalUrl);
-  const info = await api.json();
+  try {
+    const api = await fetch(finalUrl);
+    const info = await api.json();
 
-  // semua gifs
-  let gifsData = info.data;
-  gifsData.forEach((gif) => {
-    // menambahkan card untuk setiap gif
-    let container = document.createElement("div");
-    container.classList.add("container");
-    let iframe = document.createElement("img");
-    iframe.setAttribute("src", gif.images.downsized_medium.url);
-    iframe.onload = () => {
-      // jika iframe sudah load degan benar, kurangi count setiap gif
-      gifCount--;
-      if (gifCount == 0) {
-        // ketika semua gifs sudah keload, hilangkan loader dan display gif ui
-        loader.style.display = "none";
-        wrapperEl.style.display = "grid";
-      }
-    };
-    container.append(iframe);
+    // semua gifs
+    let gifsData = info.data;
+    gifsData.forEach((gif) => {
+      // menambahkan card untuk setiap gif
+      let container = document.createElement("div");
+      container.classList.add("container");
+      let iframe = document.createElement("img");
+      iframe.setAttribute("src", gif.images.downsized_medium.url);
+      iframe.addEventListener("load", function () {
+        // jika iframe sudah load degan benar, kurangi count setiap gif
+        gifCount--;
+        if (gifCount == 0) {
+          // ketika semua gifs sudah keload, hilangkan loader dan display gif ui
+          loader.style.display = "none";
+          wrapperEl.style.display = "grid";
+        }
+      });
+      container.append(iframe);
 
-    // copy link button
-    let copyBtn = document.createElement("button");
-    copyBtn.innerText = "Salin link";
-    copyBtn.addEventListener("click", function () {
-      let copylink = `https://media4.giphy.com/media/${gif.id}/giphy.mp4`;
+      // copy link button
+      let copyBtn = document.createElement("button");
+      copyBtn.innerText = "Salin link";
+      copyBtn.addEventListener("click", function () {
+        let copylink = `https://media4.giphy.com/media/${gif.id}/giphy.mp4`;
 
-      navigator.clipboard
-        .writeText(copylink)
-        .then(() => {
-          alert("Gif Copied to clipboard");
-        })
-        .catch(() => {
-          alert("Gif copied to clipboard");
+        navigator.clipboard
+          .writeText(copylink)
+          .then(() => {
+            alert("Gif Copied to clipboard");
+          })
+          .catch(() => {
+            alert("Gif copied to clipboard");
 
-          let hiddenInput = document.createElement("input");
+            let hiddenInput = document.createElement("input");
 
-          hiddenInput.setAttribute("type", "text");
-          document.body.appendChild(hiddenInput);
-          hiddenInput.value = copylink;
-          // select value
-          hiddenInput.select();
-          // copy value
-          document.execCommand("copy");
-          // menghilangkan input
-          document.body.removeChild(hiddenInput);
-        });
+            hiddenInput.setAttribute("type", "text");
+            document.body.appendChild(hiddenInput);
+            hiddenInput.value = copylink;
+            // select value
+            hiddenInput.select();
+            // copy value
+            document.execCommand("copy");
+            // menghilangkan input
+            document.body.removeChild(hiddenInput);
+          });
+      });
+      container.append(copyBtn);
+
+      wrapperEl.append(container);
     });
-    container.append(copyBtn);
-
-    wrapperEl.append(container);
-  });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // generate gif di screen load atau ketika user click submit
